@@ -95,6 +95,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size='mini'
+                @click="showsetRoleDialog(slotProps.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -212,6 +213,43 @@
         >确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 分配角色对话框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="setRoledialogVisible"
+      width="50%"
+      @close="setRoledialogClosed()"
+    >
+      <div>
+        <p>当前的用户：{{setRoleUserinfo.username}}</p>
+        <p>当前的角色：{{setRoleUserinfo.role_name}}</p>
+        <p>
+          分配新角色： <el-select
+            v-model="selectedRoleID"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button @click="setRoledialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="seveRoleInfo"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -257,7 +295,7 @@ export default {
         email: '',
         mobile: ''
       },
-      // 添加yh表单验证规则
+      // 添加表单验证规则
       addFromRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -290,7 +328,15 @@ export default {
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      // 分配角色对话框是否可见
+      setRoledialogVisible: false,
+      // 保存分配角色的用户信息
+      setRoleUserinfo: {},
+      // 所有角色列表
+      rolesList: [],
+      // 选择的角色id
+      selectedRoleID: ''
     }
   },
   created() {
@@ -399,6 +445,41 @@ export default {
       this.$message.success('删除用户成功')
       // 重新加载用户列表
       this.getUserList()
+    },
+    // 分配角色对话框
+    async showsetRoleDialog(userinfo) {
+      this.setRoleUserinfo = userinfo
+      // 发起请求获取所有角色列表
+      const { data: res } = await this.$http.get('/roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败')
+      }
+      this.rolesList = res.data
+      this.setRoledialogVisible = true
+    },
+    // 保存角色信息
+    async seveRoleInfo() {
+      if (!this.selectedRoleID) {
+        return this.$message.info('请选择分配的角色')
+      }
+      // 发起分配角色请求
+      const { data: res } = await this.$http.put(`users/${this.setRoleUserinfo.id}/role`, {
+        rid: this.selectedRoleID
+      })
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('分配角色失败')
+      }
+
+      this.$message.success('分配角色成功')
+      // 渲染用户列表
+      this.getUserList()
+      this.setRoledialogVisible = false
+    },
+    // 分配角色对话框关闭 重置下拉框
+    setRoledialogClosed() {
+      this.selectedRoleID = ''
+      this.setRoleUserinfo = {}
     }
   }
 }
