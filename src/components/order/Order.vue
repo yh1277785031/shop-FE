@@ -65,11 +65,14 @@
         </el-table-column>
         <el-table-column label="下单时间">
           <template v-slot="slotProps">
-            {{slotProps.row.create_time | dateFormat}}
+            {{slotProps.row.create_time*1000 | dateFormat}}
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <template>
+          <template
+            width='170px'
+            v-slot
+          >
             <el-button
               type="primary"
               icon="el-icon-edit"
@@ -80,7 +83,7 @@
               type="success"
               icon="el-icon-location"
               size="mini"
-              @click="showProgressDialog"
+              disabled
             ></el-button>
           </template>
         </el-table-column>

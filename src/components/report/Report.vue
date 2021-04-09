@@ -26,7 +26,7 @@ export default {
     return {
       options: {
         title: {
-          text: '用户来源'
+          text: '用户数量'
         },
         tooltip: {
           trigger: 'axis',

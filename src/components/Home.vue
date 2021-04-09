@@ -7,7 +7,7 @@
           src="../assets/zznu.png"
           alt=""
         >
-        <span>电商后台管理系统</span>
+        <span>校园购后台管理系统</span>
       </div>
       <el-button
         type="info"
@@ -133,7 +133,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  > div {
+  div {
     font-size: 20px;
     color: #fff;
     display: flex;
